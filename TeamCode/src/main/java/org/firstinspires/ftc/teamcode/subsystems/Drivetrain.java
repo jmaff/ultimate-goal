@@ -57,8 +57,8 @@ import static org.firstinspires.ftc.teamcode.motion.DriveConstants.encoderTicksT
  */
 @Config
 public class Drivetrain extends MecanumDrive implements Subsystem {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 0);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(1.9, 0.15, 0.8);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 0.2);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(1.9, 0, 0.8);
 
     public static double LATERAL_MULTIPLIER = 1.4541387;
 

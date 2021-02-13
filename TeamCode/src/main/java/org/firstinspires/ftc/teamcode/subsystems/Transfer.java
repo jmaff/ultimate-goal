@@ -3,30 +3,31 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 public class Transfer implements Subsystem {
-    public static double PIVOT_UP = 0.4;
-    public static double PIVOT_DOWN = 0.7;
-    public static double PIVOT_HOLD = 0.5;
+    public static double PIVOT_UP = 0.6;
+    public static double PIVOT_DOWN = 0.76;
 
-    private long lastDownTime = 0;
-    private PivotState prevPivotState = PivotState.OFF;
+    public static double FLICKER_POWER = 0.27;
+
 
     private Servo pivot;
     private CRServo flicker;
+    private DigitalChannel limit;
 
     public enum PivotState {
         UP,
         DOWN,
-        OFF
     }
 
     public enum FlickerState {
         FIRE,
-        OFF
+        OFF,
+        GO_TO_LIMIT
     }
 
     private PivotState pivotState = PivotState.DOWN;
@@ -35,6 +36,7 @@ public class Transfer implements Subsystem {
     public Transfer(HardwareMap hardwareMap) {
         pivot = hardwareMap.get(Servo.class, "T.P");
         flicker = hardwareMap.get(CRServo.class, "T.F");
+        limit = hardwareMap.get(DigitalChannel.class, "T.M");
         flicker.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
@@ -62,27 +64,23 @@ public class Transfer implements Subsystem {
                 break;
             case DOWN:
                 pivot.setPosition(PIVOT_DOWN);
-                if (prevPivotState != PivotState.DOWN) {
-                    lastDownTime = System.currentTimeMillis();
-                }
                 break;
-            case OFF:
-                pivot.setPosition(PIVOT_HOLD);
         }
-
-        if (System.currentTimeMillis() - lastDownTime > 1000 && pivotState == PivotState.DOWN) {
-            pivotState = PivotState.OFF;
-        }
-
-        prevPivotState = pivotState;
 
         switch (flickerState) {
             case FIRE:
-                flicker.setPower(1.0);
+                flicker.setPower(FLICKER_POWER);
                 break;
             case OFF:
                 flicker.setPower(0.0);
                 break;
+            case GO_TO_LIMIT:
+                if (!limit.getState()) {
+                    flicker.setPower(0.18);
+                } else {
+                    flickerState = FlickerState.OFF;
+                }
+
         }
     }
 }

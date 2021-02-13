@@ -8,11 +8,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 public class Launcher implements Subsystem {
-    public static double TA_FLAT = 0.18;
+    public static double TA_FLAT = 0.29;
     private long lastIncrementTime = 0;
     public static double minTimeBetweenIncrement = 25;
     public static double incrementAmount = 0.01;
 
+    public static double LAUNCHER_POWER = 0.77;
 
     private DcMotor front;
     private DcMotor back;
@@ -66,7 +67,7 @@ public class Launcher implements Subsystem {
     public void update() {
         switch(launcherState) {
             case ON:
-                setLauncherPower(1.0);
+                setLauncherPower(LAUNCHER_POWER);
                 break;
             case OFF:
                 setLauncherPower(0.0);

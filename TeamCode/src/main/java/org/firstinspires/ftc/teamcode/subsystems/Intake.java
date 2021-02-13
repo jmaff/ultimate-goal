@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Intake implements Subsystem {
@@ -15,6 +16,7 @@ public class Intake implements Subsystem {
 
     public Intake(HardwareMap hardwareMap) {
         motor = hardwareMap.get(DcMotor.class, "I.M");
+        motor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     @Override

@@ -2,13 +2,20 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 
-import org.firstinspires.ftc.teamcode.opmodes.RobotOpMode;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Launcher;
 import org.firstinspires.ftc.teamcode.subsystems.Transfer;
+import org.firstinspires.ftc.teamcode.subsystems.Wobble;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp
 public class TeleOp extends RobotOpMode {
+
+    @Override
+    public void init() {
+        super.init();
+        drive.setPoseEstimate(new Pose2d(-72.0 + 17.5/2.0, -24-2-3.0/8.0-6-1.0/8.0));
+        wobble.setWobbleState(Wobble.WobbleState.MANUAL);
+    }
 
     @Override
     public void loop() {
@@ -69,6 +76,27 @@ public class TeleOp extends RobotOpMode {
             launcher.setAdjustmentState(Launcher.AdjustmentState.HOLD);
         }
 
+        // Wobble (manual)
+        if (gamer2.DPAD_UP.pressed()) {
+            if (wobble.getWobbleState() == Wobble.WobbleState.GRAB) {
+                wobble.setWobbleState(Wobble.WobbleState.DOWN);
+            } else {
+                wobble.setWobbleState(Wobble.WobbleState.UP);
+            }
+        } else if (gamer2.DPAD_DOWN.pressed()) {
+            if (wobble.getWobbleState() == Wobble.WobbleState.UP) {
+                wobble.setWobbleState(Wobble.WobbleState.DOWN);
+            } else {
+                wobble.setWobbleState(Wobble.WobbleState.GRAB);
+            }
+        }
+
+        if (gamer1.X.state) {
+            wobble.setGrabberState(Wobble.GrabberState.GRABBED);
+        } else if (gamer1.B.state) {
+            wobble.setGrabberState(Wobble.GrabberState.RELEASED);
+        }
+
         // Flicker
         if (gamer1.A.pressed()) {
             if (transfer.getFlickerState() != Transfer.FlickerState.FIRE) {
@@ -77,5 +105,12 @@ public class TeleOp extends RobotOpMode {
                 transfer.setFlickerState(Transfer.FlickerState.OFF);
             }
         }
+
+        Pose2d poseEstimate = drive.getPoseEstimate();
+        telemetry.addData("x", poseEstimate.getX());
+        telemetry.addData("y", poseEstimate.getY());
+        telemetry.addData("heading", poseEstimate.getHeading());
+        telemetry.addData("Wobble Counts", wobble.getPosition());
+        telemetry.update();
     }
 }

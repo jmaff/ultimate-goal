@@ -57,7 +57,7 @@ import static org.firstinspires.ftc.teamcode.motion.DriveConstants.encoderTicksT
  */
 @Config
 public class Drivetrain extends MecanumDrive implements Subsystem {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 0.2);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(3, 0.1, 0.2);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(1.9, 0, 0.8);
 
     public static double LATERAL_MULTIPLIER = 1.4541387;
@@ -151,6 +151,9 @@ public class Drivetrain extends MecanumDrive implements Subsystem {
 
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         setLocalizer(new OdometryLocalizer(hardwareMap, this));
     }

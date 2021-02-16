@@ -8,12 +8,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 public class Wobble implements Subsystem {
-    public static double DOWN_POWER = 0.3;
-    public static double UP_POWER = 0.3;
+    public static double DOWN_POWER = 0.4;
+    public static double UP_POWER = 0.6;
     public static double kP = 0.01;
     public static int UP_COUNTS = 0;
-    public static int DOWN_COUNTS = 150;
-    public static int GRAB_COUNTS = 180;
+    public static int DOWN_COUNTS = 870;
+    public static int GRAB_COUNTS = 960;
     public static int MIN_ERROR = 10;
 
     public static double GRABBED = 0.7;
@@ -76,6 +76,12 @@ public class Wobble implements Subsystem {
         }
 
         wobbleMotor.setPower(power);
+
+        if (wobbleState != WobbleState.OFF && wobbleState != WobbleState.MANUAL) {
+            if (Math.abs(getError()) < MIN_ERROR) {
+                wobbleState = WobbleState.OFF;
+            }
+        }
 
         switch (grabberState) {
             case GRABBED:

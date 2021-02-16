@@ -29,6 +29,7 @@ public class OdometryLocalizer extends CustomThreeWheelTrackingLocalizer {
 //    public static double Y_MULTIPLIER = (118.0 * 3) / (119.0795 + 119.1408 + 119.1883);
 
     public static double X_MULTIPLIER = 0.9933036198;
+//    public static double X_MULTIPLIER = 1.01;
     public static double Y_MULTIPLIER = 0.9917013429;
 
     private Encoder leftEncoder, rightEncoder, lateralEncoder;

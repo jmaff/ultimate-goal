@@ -59,7 +59,7 @@ public class TeleOp extends RobotOpMode {
         }
 
         // Launcher
-        if (gamer2.A.pressed()) {
+        if (gamer2.B.pressed()) {
             if (launcher.getLauncherState() != Launcher.LauncherState.ON) {
                 launcher.setLauncherState(Launcher.LauncherState.ON);
             } else {
@@ -68,15 +68,15 @@ public class TeleOp extends RobotOpMode {
         }
 
         // Trajectory Adjust
-        if (gamer2.DPAD_UP.state) {
+        if (gamer2.Y.state) {
             launcher.setAdjustmentState(Launcher.AdjustmentState.INCREMENT);
-        } else if (gamer2.DPAD_DOWN.state) {
+        } else if (gamer2.A.state) {
             launcher.setAdjustmentState(Launcher.AdjustmentState.DECREMENT);
         } else {
             launcher.setAdjustmentState(Launcher.AdjustmentState.HOLD);
         }
 
-        // Wobble (manual)
+        // Wobble (auto)
         if (gamer2.DPAD_UP.pressed()) {
             if (wobble.getWobbleState() == Wobble.WobbleState.GRAB) {
                 wobble.setWobbleState(Wobble.WobbleState.DOWN);
@@ -90,6 +90,19 @@ public class TeleOp extends RobotOpMode {
                 wobble.setWobbleState(Wobble.WobbleState.GRAB);
             }
         }
+
+        if (gamer2.LEFT_JOYSTICK_PUSH.state) {
+            transfer.setFlickerState(Transfer.FlickerState.GO_TO_LIMIT);
+        }
+
+        // Wobble (manual)
+//        if (gamer2.DPAD_UP.state) {
+//            wobble.setPower(-Wobble.UP_POWER);
+//        } else if (gamer2.DPAD_DOWN.state) {
+//            wobble.setPower(Wobble.DOWN_POWER);
+//        } else {
+//            wobble.setPower(0.0);
+//        }
 
         if (gamer1.X.state) {
             wobble.setGrabberState(Wobble.GrabberState.GRABBED);

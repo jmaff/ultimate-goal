@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Config
 public class Transfer implements Subsystem {
     public static double PIVOT_UP = 0.6;
-    public static double PIVOT_DOWN = 0.76;
+    public static double PIVOT_DOWN = 0.83;
 
     public static double FLICKER_POWER = 0.27;
 
@@ -75,8 +75,8 @@ public class Transfer implements Subsystem {
                 flicker.setPower(0.0);
                 break;
             case GO_TO_LIMIT:
-                if (!limit.getState()) {
-                    flicker.setPower(0.18);
+                if (limit.getState()) {
+                    flicker.setPower(0.10);
                 } else {
                     flickerState = FlickerState.OFF;
                 }

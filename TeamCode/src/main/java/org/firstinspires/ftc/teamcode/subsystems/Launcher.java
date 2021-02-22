@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Config
 public class Launcher implements Subsystem {
     public static double TA_FLAT = 0.29;
+    public static double TA_DROP = 0.4;
+    public static double TA_LINE = 0.37;
     private long lastIncrementTime = 0;
     public static double minTimeBetweenIncrement = 25;
     public static double incrementAmount = 0.01;
@@ -23,7 +25,8 @@ public class Launcher implements Subsystem {
 
     public enum LauncherState {
         ON,
-        OFF
+        OFF,
+        TELE
     }
 
     public enum AdjustmentState {
@@ -72,6 +75,9 @@ public class Launcher implements Subsystem {
             case OFF:
                 setLauncherPower(0.0);
                 break;
+            case TELE:
+                setLauncherPower(0.9);
+                break;
         }
 
         if (System.currentTimeMillis() - lastIncrementTime >= minTimeBetweenIncrement && adjustmentState != AdjustmentState.HOLD) {
@@ -89,5 +95,13 @@ public class Launcher implements Subsystem {
     public void setLauncherPower(double power) {
         front.setPower(power);
         back.setPower(power);
+    }
+
+    public double getTrajectoryPosition() {
+        return trajectoryPosition;
+    }
+
+    public void setTrajectoryPosition(double trajectoryPosition) {
+        this.trajectoryPosition = trajectoryPosition;
     }
 }

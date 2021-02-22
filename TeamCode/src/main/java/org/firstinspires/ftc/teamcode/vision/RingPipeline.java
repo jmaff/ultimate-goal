@@ -17,10 +17,10 @@ public class RingPipeline extends OpenCvPipeline {
     public static double S_MIN = 40;
     public static double V_MIN = 0.0;
 
-    public static int LEFT_BOUND = 127;
-    public static int UPPER_BOUND = 40;
-    public static int WIDTH = 60;
-    public static int HEIGHT = 50;
+    public static int LEFT_BOUND = 120;
+    public static int UPPER_BOUND = 38;
+    public static int WIDTH = 55;
+    public static int HEIGHT = 45;
 
     public static double FOUR_THRESHOLD = 0.8;
     public static double ONE_THRESHOLD = 0.4;
@@ -77,7 +77,7 @@ public class RingPipeline extends OpenCvPipeline {
                 ringConfiguration = RingConfiguration.NONE;
             }
         }
-        return hsvMat;
+        return input;
     }
 
     public double[] getCurrentHSV() {

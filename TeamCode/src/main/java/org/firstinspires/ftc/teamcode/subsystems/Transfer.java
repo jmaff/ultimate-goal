@@ -16,7 +16,7 @@ public class Transfer implements Subsystem {
 
 
     private Servo pivot;
-    private CRServo flicker;
+    public CRServo flicker;
     private DigitalChannel limit;
 
     public enum PivotState {
@@ -26,8 +26,10 @@ public class Transfer implements Subsystem {
 
     public enum FlickerState {
         FIRE,
+        TELE,
         OFF,
-        GO_TO_LIMIT
+        GO_TO_LIMIT,
+        MANUAL
     }
 
     private PivotState pivotState = PivotState.DOWN;
@@ -68,6 +70,9 @@ public class Transfer implements Subsystem {
         }
 
         switch (flickerState) {
+            case TELE:
+                flicker.setPower(0.32);
+                break;
             case FIRE:
                 flicker.setPower(FLICKER_POWER);
                 break;
@@ -76,10 +81,13 @@ public class Transfer implements Subsystem {
                 break;
             case GO_TO_LIMIT:
                 if (limit.getState()) {
-                    flicker.setPower(0.10);
+                    flicker.setPower(0.15);
                 } else {
                     flickerState = FlickerState.OFF;
                 }
+                break;
+            case MANUAL:
+                break;
 
         }
     }

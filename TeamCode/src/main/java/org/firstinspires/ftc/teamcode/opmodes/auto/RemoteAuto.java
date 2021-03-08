@@ -39,16 +39,14 @@ public class RemoteAuto extends RobotOpMode {
     }
 
     public static double TURN = Math.toRadians(-1.5);
-//    public static double FORWARD_DIST = 12.9;
     public static double FORWARD_DIST = 16.25;
     public static double TILE_SIZE_X = 25;
     public static double TILE_SIZE_Y = 19;
 
-
     State currentState = State.IDLE;
 
-    public static Pose2d startPose = new Pose2d(-72.0 + 17.5/2.0, -24-2-3.0/8.0-6-1.0/8.0);
-    public static Vector2d SHOOT_POS = new Vector2d(-39.66, -36.29);
+    public static final Pose2d startPose = new Pose2d(-72.0 + 17.5/2.0, -24-2-3.0/8.0-6-1.0/8.0);
+    public static final Vector2d SHOOT_POS = new Vector2d(-39.66, -36.29);
     Vector2d FIRST_WOBBLE_POS = new Vector2d(10.5, -49.0);
     Vector2d TO_WALL_POS = new Vector2d(startPose.getX()+2.0, startPose.getY()+1.5);
     Vector2d SECOND_WOBBLE_POS = new Vector2d(2.5, -42.0);
@@ -69,7 +67,7 @@ public class RemoteAuto extends RobotOpMode {
     RingPipeline.RingConfiguration ringConfiguration = RingPipeline.RingConfiguration.NULL;
 
     public static DriveConstraints SLOW_CONSTRAINTS = new MecanumConstraints(new DriveConstraints(
-            15, 15, 0.0,
+            7.5, 7.5, 0.0,
             4.76614956, Math.toRadians(360), 0.0
     ), TRACK_WIDTH);
 
@@ -124,98 +122,8 @@ public class RemoteAuto extends RobotOpMode {
         drive.followTrajectoryAsync(toShootTraj);
 
         launcher.setTrajectoryPosition(Launcher.TA_DROP);
-
-        double INTAKE_DISTANCE =  ringConfiguration == RingPipeline.RingConfiguration.ONE ? 7.5 : 12.8;
-
-//        otherRingIntakeTraj = drive.trajectoryBuilder(toShootTraj.end())
-//                .lineToLinearHeading(new Pose2d(toShootTraj.end().getX() + INTAKE_DISTANCE, toShootTraj.end().getY(), 0.0))
-//                .build();
-
-        otherRingIntakeTraj = (new TrajectoryBuilder(toShootTraj.end(), SLOW_CONSTRAINTS))
-                .lineToLinearHeading(new Pose2d(toShootTraj.end().getX() + INTAKE_DISTANCE, toShootTraj.end().getY(), 0.0))
-                .build();
-
-        otherRingToShootTraj = drive.trajectoryBuilder(otherRingIntakeTraj.end())
-                .lineToLinearHeading(new Pose2d(SHOOT_POS, TURN))
-                .build();
-
-//        public static Vector2d FIRST_WOBBLE_POS = new Vector2d(10.5, -49.0);
-//        Vector2d SECOND_WOBBLE_POS = new Vector2d(2.5, -42.0);
-
-        if (ringConfiguration == RingPipeline.RingConfiguration.ONE) {
-            FIRST_WOBBLE_POS = new Vector2d(10.5+TILE_SIZE_X, -49.0+TILE_SIZE_Y);
-            SECOND_WOBBLE_POS = new Vector2d(4.5+TILE_SIZE_X, -42.0+TILE_SIZE_Y);
-        } else if (ringConfiguration == RingPipeline.RingConfiguration.FOUR) {
-            FIRST_WOBBLE_POS = new Vector2d(10.5+38, -49.0);
-            SECOND_WOBBLE_POS = new Vector2d(2.5+51, -42.0-2);
-        } else if (ringConfiguration == RingPipeline.RingConfiguration.NONE) {
-            SECOND_WOBBLE_POS = new Vector2d(2.5+5, -42.0);
-        }
-
-
-        if (ringConfiguration != RingPipeline.RingConfiguration.FOUR) {
-            firstWobbleTraj = drive.trajectoryBuilder(toShootTraj.end())
-                    .splineTo(FIRST_WOBBLE_POS, 0.0)
-                    .build();
-        } else {
-            firstWobbleTraj = drive.trajectoryBuilder(toShootTraj.end())
-                    .forward(6)
-                    .splineTo(FIRST_WOBBLE_POS, 0.0)
-                    .build();
-        }
-
-
-        backToWallTraj = drive.trajectoryBuilder(firstWobbleTraj.end(), true)
-                .splineTo(TO_WALL_POS, Math.toRadians(180))
-                .build();
-
-        if (ringConfiguration == RingPipeline.RingConfiguration.NONE) {
-            strafeOverTraj = drive.trajectoryBuilder(backToWallTraj.end())
-                    .strafeRight(3)
-                    .build();
-        } else if (ringConfiguration == RingPipeline.RingConfiguration.ONE){
-            strafeOverTraj = drive.trajectoryBuilder(backToWallTraj.end())
-                    .strafeRight(7.5)
-                    .build();
-        } else {
-            strafeOverTraj = drive.trajectoryBuilder(backToWallTraj.end())
-                    .strafeRight(3.9)
-                    .build();
-        }
-
-        if (ringConfiguration != RingPipeline.RingConfiguration.NONE) {
-            FORWARD_DIST = 16.25;
-        }
-
-        forwardTraj = drive.trajectoryBuilder(strafeOverTraj.end())
-                .forward(FORWARD_DIST)
-                .addDisplacementMarker(new MarkerCallback() {
-                    @Override
-                    public void onMarkerReached() {
-                        wobble.setGrabberState(Wobble.GrabberState.GRABBED);
-                    }
-                })
-                .build();
-
-        secondWobbleTraj = drive.trajectoryBuilder(forwardTraj.end())
-                .splineTo(SECOND_WOBBLE_POS, 0.0)
-                .build();
-
-
-        if (ringConfiguration == RingPipeline.RingConfiguration.ONE) {
-            parkTraj = drive.trajectoryBuilder(secondWobbleTraj.end())
-                    .back(30)
-                    .build();
-        } else {
-            parkTraj = drive.trajectoryBuilder(secondWobbleTraj.end())
-                    .lineToLinearHeading(new Pose2d(secondWobbleTraj.end().getX()-68, secondWobbleTraj.end().getY(), Math.toRadians(15)))
-                    .build();
-        }
-
-        endTraj = drive.trajectoryBuilder(parkTraj.end())
-                .forward(18)
-                .build();
-
+        buildTrajectories(ringConfiguration);
+        setState(State.MOVE_TO_SHOOT);
     }
 
     boolean doneTraveling = false;
@@ -226,10 +134,13 @@ public class RemoteAuto extends RobotOpMode {
         super.loop();
 
         switch (currentState) {
+            // AUTO START
             case MOVE_TO_SHOOT:
+                if (getStateElapsedTime() > 700) {
+                    launcher.setTrajectoryPosition(Launcher.TA_FLAT);
+                }
                 if (!drive.isBusy()) {
                     setState(State.SHOOT);
-                    launcher.setTrajectoryPosition(Launcher.TA_FLAT);
                 }
                 launcher.setLauncherState(Launcher.LauncherState.ON);
                 break;
@@ -264,6 +175,7 @@ public class RemoteAuto extends RobotOpMode {
                 }
                 break;
             case INTAKE_OTHER_RINGS:
+                transfer.setSafetyState(Transfer.SafetyState.ENGAGED);
                 if (drive.isBusy()) {
                     transfer.setPivotState(Transfer.PivotState.DOWN);
                     intake.setState(Intake.IntakeState.IN);
@@ -291,6 +203,7 @@ public class RemoteAuto extends RobotOpMode {
                 }
                 break;
             case SHOOT_OTHER:
+                transfer.setSafetyState(Transfer.SafetyState.DISENGAGED);
                 if (getStateElapsedTime() > 300) {
                     transfer.setFlickerState(Transfer.FlickerState.FIRE);
                 }
@@ -403,6 +316,90 @@ public class RemoteAuto extends RobotOpMode {
         telemetry.addData("heading", poseEstimate.getHeading());
         telemetry.addData("flicker", transfer.getFlickerState());
         telemetry.update();
+    }
+
+    void buildTrajectories(RingPipeline.RingConfiguration ringConfiguration) {
+        double INTAKE_DISTANCE =  ringConfiguration == RingPipeline.RingConfiguration.ONE ? 7.5 : 9;
+
+        otherRingIntakeTraj = (new TrajectoryBuilder(toShootTraj.end(), SLOW_CONSTRAINTS))
+                .lineToLinearHeading(new Pose2d(toShootTraj.end().getX() + INTAKE_DISTANCE, toShootTraj.end().getY(), 0.0))
+                .build();
+
+        otherRingToShootTraj = drive.trajectoryBuilder(otherRingIntakeTraj.end())
+                .lineToLinearHeading(new Pose2d(SHOOT_POS, TURN))
+                .build();
+
+        if (ringConfiguration == RingPipeline.RingConfiguration.ONE) {
+            FIRST_WOBBLE_POS = new Vector2d(10.5+TILE_SIZE_X, -47.0+TILE_SIZE_Y);
+            SECOND_WOBBLE_POS = new Vector2d(4.5+TILE_SIZE_X, -44.0+TILE_SIZE_Y);
+        } else if (ringConfiguration == RingPipeline.RingConfiguration.FOUR) {
+            FIRST_WOBBLE_POS = new Vector2d(53.5, -46.0);
+            SECOND_WOBBLE_POS = new Vector2d(53, -49);
+        } else if (ringConfiguration == RingPipeline.RingConfiguration.NONE) {
+            SECOND_WOBBLE_POS = new Vector2d(2.5+5, -42.0);
+        }
+
+        if (ringConfiguration != RingPipeline.RingConfiguration.FOUR) {
+            firstWobbleTraj = drive.trajectoryBuilder(toShootTraj.end())
+                    .splineTo(FIRST_WOBBLE_POS, 0.0)
+                    .build();
+        } else {
+            firstWobbleTraj = drive.trajectoryBuilder(toShootTraj.end())
+                    .forward(6)
+                    .splineTo(FIRST_WOBBLE_POS, 0.0)
+                    .build();
+        }
+
+        backToWallTraj = drive.trajectoryBuilder(firstWobbleTraj.end(), true)
+                .splineTo(TO_WALL_POS, Math.toRadians(180))
+                .build();
+
+        if (ringConfiguration == RingPipeline.RingConfiguration.NONE) {
+            strafeOverTraj = drive.trajectoryBuilder(backToWallTraj.end())
+                    .strafeRight(3)
+                    .build();
+        } else if (ringConfiguration == RingPipeline.RingConfiguration.ONE){
+            strafeOverTraj = drive.trajectoryBuilder(backToWallTraj.end())
+                    .strafeRight(3)
+                    .build();
+        } else {
+            strafeOverTraj = drive.trajectoryBuilder(backToWallTraj.end())
+                    .strafeRight(1)
+                    .build();
+        }
+
+        if (ringConfiguration != RingPipeline.RingConfiguration.NONE) {
+            FORWARD_DIST = 16.25;
+        }
+
+        forwardTraj = drive.trajectoryBuilder(strafeOverTraj.end())
+                .forward(FORWARD_DIST)
+                .addDisplacementMarker(new MarkerCallback() {
+                    @Override
+                    public void onMarkerReached() {
+                        wobble.setGrabberState(Wobble.GrabberState.GRABBED);
+                    }
+                })
+                .build();
+
+        secondWobbleTraj = drive.trajectoryBuilder(forwardTraj.end())
+                .splineTo(SECOND_WOBBLE_POS, 0.0)
+                .build();
+
+
+        if (ringConfiguration == RingPipeline.RingConfiguration.ONE) {
+            parkTraj = drive.trajectoryBuilder(secondWobbleTraj.end())
+                    .back(30)
+                    .build();
+        } else {
+            parkTraj = drive.trajectoryBuilder(secondWobbleTraj.end())
+                    .lineToLinearHeading(new Pose2d(secondWobbleTraj.end().getX()-68, secondWobbleTraj.end().getY(), Math.toRadians(15)))
+                    .build();
+        }
+
+        endTraj = drive.trajectoryBuilder(parkTraj.end())
+                .forward(18)
+                .build();
     }
 
     private void setState(State state) {

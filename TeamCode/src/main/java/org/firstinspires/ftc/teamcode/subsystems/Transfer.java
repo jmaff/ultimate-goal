@@ -14,10 +14,14 @@ public class Transfer implements Subsystem {
 
     public static double FLICKER_POWER = 0.27;
 
+    public static double SAFETY_ENGAGED = 0.34;
+    public static double SAFETY_DISENGAGED = 0.0;
+
 
     private Servo pivot;
     public CRServo flicker;
     private DigitalChannel limit;
+    private Servo safety;
 
     public enum PivotState {
         UP,
@@ -29,17 +33,31 @@ public class Transfer implements Subsystem {
         TELE,
         OFF,
         GO_TO_LIMIT,
+        GO_TO_LIMIT_REVERSE,
+        FIRE_ONE,
         MANUAL
+    }
+
+    public enum SafetyState {
+        ENGAGED,
+        DISENGAGED
     }
 
     private PivotState pivotState = PivotState.DOWN;
     private FlickerState flickerState = FlickerState.OFF;
+    private FlickerState previousFlickerState = FlickerState.OFF;
+    private SafetyState safetyState = SafetyState.DISENGAGED;
+    long startFireOne = 0;
+
+    boolean startingSingleFire = false;
 
     public Transfer(HardwareMap hardwareMap) {
         pivot = hardwareMap.get(Servo.class, "T.P");
         flicker = hardwareMap.get(CRServo.class, "T.F");
         limit = hardwareMap.get(DigitalChannel.class, "T.M");
         flicker.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        safety = hardwareMap.get(Servo.class, "T.S");
     }
 
     public PivotState getPivotState() {
@@ -56,6 +74,14 @@ public class Transfer implements Subsystem {
 
     public void setFlickerState(FlickerState flickerState) {
         this.flickerState = flickerState;
+    }
+
+    public SafetyState getSafetyState() {
+        return safetyState;
+    }
+
+    public void setSafetyState(SafetyState safetyState) {
+        this.safetyState = safetyState;
     }
 
     @Override
@@ -86,9 +112,40 @@ public class Transfer implements Subsystem {
                     flickerState = FlickerState.OFF;
                 }
                 break;
+            case GO_TO_LIMIT_REVERSE:
+                if (limit.getState()) {
+                    flicker.setPower(-0.15);
+                } else {
+                    flickerState = FlickerState.OFF;
+                }
+                break;
+            case FIRE_ONE:
+                if (previousFlickerState != FlickerState.FIRE_ONE) {
+                    startFireOne = System.currentTimeMillis();
+                    flicker.setPower(0.2);
+                }
+
+                if (limit.getState()) {
+                    flicker.setPower(0.2);
+                } else {
+                    if (System.currentTimeMillis() - startFireOne > 300) {
+                        flickerState = FlickerState.OFF;
+                    }
+                }
+                break;
             case MANUAL:
                 break;
-
         }
+
+        switch (safetyState) {
+            case ENGAGED:
+                safety.setPosition(SAFETY_ENGAGED);
+                break;
+            case DISENGAGED:
+                safety.setPosition(SAFETY_DISENGAGED);
+                break;
+        }
+
+        previousFlickerState = flickerState;
     }
 }

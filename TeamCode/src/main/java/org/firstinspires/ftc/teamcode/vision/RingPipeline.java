@@ -18,7 +18,7 @@ public class RingPipeline extends OpenCvPipeline {
     public static double V_MIN = 0.0;
 
     public static int LEFT_BOUND = 120;
-    public static int UPPER_BOUND = 38;
+    public static int UPPER_BOUND = 45;
     public static int WIDTH = 55;
     public static int HEIGHT = 45;
 

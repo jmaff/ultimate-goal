@@ -16,6 +16,7 @@ public class Launcher implements Subsystem {
     public static double incrementAmount = 0.01;
 
     public static double LAUNCHER_POWER = 0.77;
+    public static double WOBBLE_POWER = 0.8;
 
     private DcMotor front;
     private DcMotor back;
@@ -26,7 +27,8 @@ public class Launcher implements Subsystem {
     public enum LauncherState {
         ON,
         OFF,
-        TELE
+        TELE,
+        WOBBLE
     }
 
     public enum AdjustmentState {
@@ -77,6 +79,9 @@ public class Launcher implements Subsystem {
                 break;
             case TELE:
                 setLauncherPower(0.9);
+                break;
+            case WOBBLE:
+                setLauncherPower(WOBBLE_POWER);
                 break;
         }
 

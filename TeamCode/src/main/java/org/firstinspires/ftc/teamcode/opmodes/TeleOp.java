@@ -16,11 +16,19 @@ public class TeleOp extends RobotOpMode {
     enum TeleOpState {
         DRIVER_CONTROLLED,
         JAM_RECOVERY,
-        POWERSHOT
+        POWERSHOT,
+        POWERSHOT_TURN
     }
 
     Trajectory powerShotTraj;
     static double POWERSHOT_STRAFE = 17.9;
+
+    public static double LEFT_ANGLE = -5;
+    public static double RIGHT_ANGLE = 8;
+    public static double EPSILON = 0.5;
+
+    double startAngle;
+    double targetAngle = 0;
 
     Runnable buildTrajectoriesRunnable = new Runnable() {
         @Override
@@ -181,7 +189,7 @@ public class TeleOp extends RobotOpMode {
                     transfer.setSafetyState(Transfer.SafetyState.DISENGAGED);
                 }
 
-                if (gamer1.DPAD_RIGHT.state && gamer1.Y.state) {
+                if (gamer1.DPAD_RIGHT.state && gamer1.BACK.state) {
                     if (powerShotTraj == null && !buildThread.isAlive()) {
                         buildThread.start();
                     } else if (powerShotTraj != null) {
@@ -191,6 +199,16 @@ public class TeleOp extends RobotOpMode {
                         drive.followTrajectoryAsync(powerShotTraj);
                         launcher.setLauncherState(Launcher.LauncherState.WOBBLE);
                     }
+                }
+
+                if (gamer1.DPAD_RIGHT.state && gamer1.Y.state) {
+                    targetAngle = 0;
+                    state = TeleOpState.POWERSHOT_TURN;
+                    transfer.setPivotState(Transfer.PivotState.UP);
+                    launcher.setTrajectoryPosition(Launcher.TA_FLAT);
+                    launcher.setLauncherState(Launcher.LauncherState.WOBBLE);
+                    transfer.setSafetyState(Transfer.SafetyState.DISENGAGED);
+                    startAngle = drive.getPoseEstimate().getHeading();
                 }
 
                 if (gamer2.BACK.state) {
@@ -208,14 +226,6 @@ public class TeleOp extends RobotOpMode {
                 if (gamer1.DPAD_DOWN.pressed()) {
                     transfer.setFlickerState(Transfer.FlickerState.FIRE_ONE);
                 }
-
-                Pose2d poseEstimate = drive.getPoseEstimate();
-                telemetry.addData("x", poseEstimate.getX());
-                telemetry.addData("y", poseEstimate.getY());
-                telemetry.addData("heading", poseEstimate.getHeading());
-                telemetry.addData("Wobble Counts", wobble.getPosition());
-                telemetry.addData("Position", launcher.getTrajectoryPosition());
-
                 break;
             case JAM_RECOVERY:
                 break;
@@ -251,9 +261,58 @@ public class TeleOp extends RobotOpMode {
                     }
                 }
                 break;
+            case POWERSHOT_TURN:
+                double currentAngle = drive.getPoseEstimate().getHeading() - startAngle;
+                double power;
+                double error = currentAngle - Math.toRadians(targetAngle);
+
+                if (error < -Math.toRadians(EPSILON)) {
+                    power = -0.2;
+                } else if (error > Math.toRadians(EPSILON)){
+                    power = 0.2;
+                } else {
+                    power = 0;
+                }
+
+                drive.setWeightedDrivePower(
+                        new Pose2d(
+                                0,
+                                0,
+                                -power
+                        )
+                );
+
+                if (gamer1.A.pressed()) {
+                    transfer.setFlickerState(Transfer.FlickerState.FIRE_ONE);
+                }
+                if (gamer1.X.pressed()) {
+                    targetAngle = LEFT_ANGLE;
+                }
+                if (gamer1.B.pressed()) {
+                    targetAngle = RIGHT_ANGLE;
+                }
+
+                if (gamer1.BACK.pressed()) {
+                    state = TeleOpState.DRIVER_CONTROLLED;
+                    drive.setWeightedDrivePower(
+                            new Pose2d(
+                                    0,
+                                    0,
+                                    0
+                            )
+                    );
+                }
+
+                telemetry.addData("error", error);
+                break;
         }
 
-
+        Pose2d poseEstimate = drive.getPoseEstimate();
+        telemetry.addData("x", poseEstimate.getX());
+        telemetry.addData("y", poseEstimate.getY());
+        telemetry.addData("heading", poseEstimate.getHeading());
+        telemetry.addData("Wobble Counts", wobble.getPosition());
+        telemetry.addData("Position", launcher.getTrajectoryPosition());
         telemetry.update();
     }
 }

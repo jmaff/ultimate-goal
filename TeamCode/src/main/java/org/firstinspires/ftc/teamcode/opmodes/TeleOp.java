@@ -23,9 +23,10 @@ public class TeleOp extends RobotOpMode {
     Trajectory powerShotTraj;
     static double POWERSHOT_STRAFE = 17.9;
 
-    public static double LEFT_ANGLE = -5;
-    public static double RIGHT_ANGLE = 8;
+    public static double RIGHT_ANGLE = -6.5;
+    public static double LEFT_ANGLE = 6.5;
     public static double EPSILON = 0.5;
+    public static double kP = 2.5;
 
     double startAngle;
     double targetAngle = 0;
@@ -207,7 +208,6 @@ public class TeleOp extends RobotOpMode {
                     transfer.setPivotState(Transfer.PivotState.UP);
                     launcher.setTrajectoryPosition(Launcher.TA_FLAT);
                     launcher.setLauncherState(Launcher.LauncherState.WOBBLE);
-                    transfer.setSafetyState(Transfer.SafetyState.DISENGAGED);
                     startAngle = drive.getPoseEstimate().getHeading();
                 }
 
@@ -225,6 +225,10 @@ public class TeleOp extends RobotOpMode {
 
                 if (gamer1.DPAD_DOWN.pressed()) {
                     transfer.setFlickerState(Transfer.FlickerState.FIRE_ONE);
+                }
+
+                if (gamer1.DPAD_LEFT.pressed()) {
+                    intake.noRight = !intake.noRight;
                 }
                 break;
             case JAM_RECOVERY:
@@ -263,16 +267,9 @@ public class TeleOp extends RobotOpMode {
                 break;
             case POWERSHOT_TURN:
                 double currentAngle = drive.getPoseEstimate().getHeading() - startAngle;
-                double power;
                 double error = currentAngle - Math.toRadians(targetAngle);
+                double power = kP * error;
 
-                if (error < -Math.toRadians(EPSILON)) {
-                    power = -0.2;
-                } else if (error > Math.toRadians(EPSILON)){
-                    power = 0.2;
-                } else {
-                    power = 0;
-                }
 
                 drive.setWeightedDrivePower(
                         new Pose2d(
@@ -284,6 +281,7 @@ public class TeleOp extends RobotOpMode {
 
                 if (gamer1.A.pressed()) {
                     transfer.setFlickerState(Transfer.FlickerState.FIRE_ONE);
+                    transfer.setSafetyState(Transfer.SafetyState.DISENGAGED);
                 }
                 if (gamer1.X.pressed()) {
                     targetAngle = LEFT_ANGLE;
@@ -294,6 +292,7 @@ public class TeleOp extends RobotOpMode {
 
                 if (gamer1.BACK.pressed()) {
                     state = TeleOpState.DRIVER_CONTROLLED;
+                    launcher.setTrajectoryPosition(Launcher.TA_LINE);
                     drive.setWeightedDrivePower(
                             new Pose2d(
                                     0,

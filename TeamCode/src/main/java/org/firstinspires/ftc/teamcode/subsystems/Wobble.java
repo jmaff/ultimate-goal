@@ -12,12 +12,12 @@ public class Wobble implements Subsystem {
     public static double UP_POWER = 0.6;
     public static double kP = 0.01;
     public static int UP_COUNTS = 0;
-    public static int DOWN_COUNTS = 870;
-    public static int GRAB_COUNTS = 960;
+    public static int DOWN_COUNTS = 725;
+    public static int GRAB_COUNTS = 760;
     public static int MIN_ERROR = 10;
 
-    public static double GRABBED = 0.7;
-    public static double RELEASED = 0.0;
+    public static double GRABBED = 0.83;
+    public static double RELEASED = 0.35;
 
     DcMotor wobbleMotor;
     Servo grabber;

@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 public class EnhancedGamepad {
-    private Gamepad delegate;
+    public Gamepad delegate;
 
     public Button A = new Button();
     public Button Y = new Button();

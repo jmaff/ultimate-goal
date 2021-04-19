@@ -10,6 +10,7 @@ import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
 import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -23,6 +24,7 @@ import static org.firstinspires.ftc.teamcode.motion.DriveConstants.kA;
 import static org.firstinspires.ftc.teamcode.motion.DriveConstants.kStatic;
 import static org.firstinspires.ftc.teamcode.motion.DriveConstants.kV;
 
+@Disabled
 @Config
 @Autonomous(group = "drive")
 public class ManualFeedforwardTuner extends LinearOpMode {

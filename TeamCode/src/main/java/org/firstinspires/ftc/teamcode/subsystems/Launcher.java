@@ -8,18 +8,19 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 public class Launcher implements Subsystem {
-    public static double TA_FLAT = 0.29;
+    public static double TA_FLAT = 0.32; //0.29
     public static double TA_DROP = 0.4;
     public static double TA_LINE = 0.37;
     private long lastIncrementTime = 0;
     public static double minTimeBetweenIncrement = 25;
     public static double incrementAmount = 0.01;
 
-    public static double LAUNCHER_POWER = 0.77;
+//    public static double LAUNCHER_POWER = 0.77;
+    public static double LAUNCHER_POWER = 0.77;  //0.78
     public static double WOBBLE_POWER = 0.8;
 
-    private DcMotor front;
-    private DcMotor back;
+    public DcMotor front;
+    public DcMotor back;
     public Servo trajectoryAdjust;
 
     private double trajectoryPosition = TA_FLAT;

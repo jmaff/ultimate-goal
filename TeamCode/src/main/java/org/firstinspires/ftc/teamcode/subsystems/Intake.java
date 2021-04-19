@@ -8,12 +8,19 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 public class Intake implements Subsystem {
-    public static double STICK_STOW = 0.35;
+    public static double STICK_STOW = 0.2;
     public static double STICK_RAISED = 0.6;
     public static double STICK_DOWN = 0.7;
 
+    public static double STICK_STOW_RIGHT = 0.5;
+    public static double STICK_RAISED_RIGHT = 0.2;
+    public static double STICK_DOWN_RIGHT = 0.0;
+
+    public boolean noRight = false;
+
     private DcMotor motor;
-    private Servo stickServo;
+    private Servo stickLeft;
+    private Servo stickRight;
     public enum IntakeState {
         IN,
         OUT,
@@ -23,7 +30,8 @@ public class Intake implements Subsystem {
     public enum StickState {
         STOWED,
         RAISED,
-        DOWN
+        DOWN,
+        RIGHT_STOW
     }
 
     private IntakeState state = IntakeState.OFF;
@@ -33,14 +41,15 @@ public class Intake implements Subsystem {
         motor = hardwareMap.get(DcMotor.class, "I.M");
         motor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        stickServo = hardwareMap.get(Servo.class, "I.S");
+        stickLeft = hardwareMap.get(Servo.class, "I.S");
+        stickRight = hardwareMap.get(Servo.class, "I.SR");
     }
 
     @Override
     public void update() {
         switch (state) {
             case IN:
-                motor.setPower(1.0);
+                motor.setPower(0.75);
                 break;
             case OUT:
                 motor.setPower(-1.0);
@@ -50,16 +59,36 @@ public class Intake implements Subsystem {
                 break;
         }
 
-        switch (stickState) {
-            case STOWED:
-                stickServo.setPosition(STICK_STOW);
-                break;
-            case RAISED:
-                stickServo.setPosition(STICK_RAISED);
-                break;
-            case DOWN:
-                stickServo.setPosition(STICK_DOWN);
-                break;
+        if (!noRight) {
+            switch (stickState) {
+                case STOWED:
+                    stickLeft.setPosition(STICK_STOW);
+                    stickRight.setPosition(STICK_STOW_RIGHT);
+                    break;
+                case RAISED:
+                    stickLeft.setPosition(STICK_RAISED);
+                    stickRight.setPosition(STICK_RAISED_RIGHT);
+                    break;
+                case DOWN:
+                    stickLeft.setPosition(STICK_DOWN);
+                    stickRight.setPosition(STICK_DOWN_RIGHT);
+                    break;
+            }
+        }else {
+                switch (stickState) {
+                    case STOWED:
+                        stickLeft.setPosition(STICK_STOW);
+                        stickRight.setPosition(STICK_STOW_RIGHT);
+                        break;
+                    case RAISED:
+                        stickLeft.setPosition(STICK_RAISED);
+                        stickRight.setPosition(STICK_STOW_RIGHT);
+                        break;
+                    case DOWN:
+                        stickLeft.setPosition(STICK_DOWN);
+                        stickRight.setPosition(STICK_STOW_RIGHT);
+                        break;
+            }
         }
     }
 

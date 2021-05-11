@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.vision.RingPipeline;
 import static org.firstinspires.ftc.teamcode.motion.DriveConstants.TRACK_WIDTH;
 
 @Autonomous
-public class BlueAuto extends RobotAuto {
+public class BlueAutoNoExtra extends RobotAuto {
     public static double TURN = 0; //7
 
     public static final Pose2d startPose = new Pose2d(-63.25, 15.5);
@@ -40,9 +40,6 @@ public class BlueAuto extends RobotAuto {
     Trajectory toPowershot;
     Trajectory toShoot;
     Trajectory toWobble;
-    Trajectory toIntake;
-    Trajectory toIntakeEnd;
-    Trajectory toShootOther;
     Trajectory toPark;
 
     RingPipeline.RingConfiguration ringConfiguration = RingPipeline.RingConfiguration.NULL;
@@ -99,29 +96,6 @@ public class BlueAuto extends RobotAuto {
 
         wobble.setWobbleState(Wobble.WobbleState.UP);
 
-        if (ringConfiguration == RingPipeline.RingConfiguration.ONE || ringConfiguration == RingPipeline.RingConfiguration.FOUR) {
-            transfer.setSafetyState(Transfer.SafetyState.ENGAGED);
-            transfer.setPivotState(Transfer.PivotState.DOWN);
-            intake.setState(Intake.IntakeState.IN);
-
-            drive.followTrajectory(toIntake);
-            sleep(100);
-            drive.followTrajectory(toIntakeEnd);
-            sleep(800);
-            intake.setState(Intake.IntakeState.OFF);
-            transfer.setPivotState(Transfer.PivotState.UP);
-            sleep(800);
-            drive.turn(Math.toRadians(180.0));
-            sleep(100);
-            drive.followTrajectory(toShootOther);
-            sleep(300);
-            drive.turn(Math.toRadians(1));
-            sleep(600);
-
-            transfer.setSafetyState(Transfer.SafetyState.DISENGAGED);
-            transfer.setFlickerState(Transfer.FlickerState.FIRE);
-            sleep(800);
-        }
         drive.followTrajectory(toPark);
 
 
@@ -175,35 +149,10 @@ public class BlueAuto extends RobotAuto {
                 })
                 .build();
 
-        toIntake = drive.trajectoryBuilder(toWobble.end())
-                .splineTo(INTAKE_POS, Math.toRadians(180))
-                .build();
-
-        toIntakeEnd = drive.trajectoryBuilder(toIntake.end())
-                .lineTo(INTAKE_END_POS, SLOW_CONSTRAINTS)
-                .build();
-
-
-        toShootOther = drive.trajectoryBuilder(new Pose2d(toIntake.end().vec(), 0.0))
-                .lineToConstantHeading(SHOOT_POS)
-                .addTemporalMarker(1, new MarkerCallback() {
-                    @Override
-                    public void onMarkerReached() {
-                        launcher.setLauncherState(Launcher.LauncherState.TELE);
-                        launcher.setTrajectoryPosition(Launcher.TA_LINE);
-                    }
-                })
-                .build();
-
-        if (ringConfiguration == RingPipeline.RingConfiguration.ONE || ringConfiguration == RingPipeline.RingConfiguration.FOUR) {
-            toPark = drive.trajectoryBuilder(toShootOther.end())
+        toPark = drive.trajectoryBuilder(toWobble.end())
                     .lineToConstantHeading(PARK_POS)
                     .build();
-        } else {
-            toPark = drive.trajectoryBuilder(toWobble.end())
-                    .lineToConstantHeading(PARK_POS)
-                    .build();
-        }
+
 
         //        toPowershot = drive.trajectoryBuilder(startPose)
 //                .lineToLinearHeading(new Pose2d(PS_POS, 0.0))

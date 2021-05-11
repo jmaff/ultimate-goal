@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Launcher;
@@ -10,8 +11,9 @@ import org.firstinspires.ftc.teamcode.subsystems.Transfer;
 import org.firstinspires.ftc.teamcode.subsystems.Wobble;
 
 @Config
+@Disabled
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp
-public class TeleOp extends RobotOpMode {
+public class BlueTeleOp extends RobotOpMode {
     public static long TIME_TO_DISENGAGE = 500;
     enum TeleOpState {
         DRIVER_CONTROLLED,
@@ -74,7 +76,7 @@ public class TeleOp extends RobotOpMode {
                 drive.setWeightedDrivePower(
                         new Pose2d(
                                 -gamepad1.left_stick_y,
-                                -gamepad1.left_stick_x,
+                                gamepad1.left_stick_x,
                                 -gamepad1.right_stick_x
                         )
                 );

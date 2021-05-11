@@ -24,9 +24,13 @@ public class RobotAuto extends LinearOpMode {
     private Runnable updateRunnable = new Runnable() {
         @Override
         public void run() {
-            while (RobotAuto.this.opModeIsActive()) {
+            while (opModeIsActive()) {
                 for (Subsystem subsystem : subsystems) {
-                    if (!subsystem.equals(drive)) {
+                    if (subsystem.equals(drive)) {
+                        if (drive.mode == Drivetrain.Mode.IDLE) {
+                            subsystem.update();
+                        }
+                    } else {
                         subsystem.update();
                     }
                 }
@@ -35,7 +39,7 @@ public class RobotAuto extends LinearOpMode {
         }
     };
 
-    private Thread updateThread = new Thread(updateRunnable);
+    protected Thread updateThread = new Thread(updateRunnable);
 
     @Override
     public void runOpMode() throws InterruptedException {

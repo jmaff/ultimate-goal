@@ -12,7 +12,7 @@ public class Transfer implements Subsystem {
     public static double PIVOT_UP = 0.6;
     public static double PIVOT_DOWN = 0.83;
 
-    public static double FLICKER_POWER = 0.27;
+    public static double FLICKER_POWER = 0.23; //0.27
 
     public static double SAFETY_ENGAGED = 0.34;
     public static double SAFETY_DISENGAGED = 0.0;
@@ -35,7 +35,8 @@ public class Transfer implements Subsystem {
         GO_TO_LIMIT,
         GO_TO_LIMIT_REVERSE,
         FIRE_ONE,
-        MANUAL
+        MANUAL,
+        FIRE_SLOW
     }
 
     public enum SafetyState {
@@ -134,6 +135,9 @@ public class Transfer implements Subsystem {
                 }
                 break;
             case MANUAL:
+                break;
+            case FIRE_SLOW:
+                flicker.setPower(0.12);
                 break;
         }
 

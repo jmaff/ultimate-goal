@@ -17,12 +17,12 @@ public class RingPipeline extends OpenCvPipeline {
     public static double S_MIN = 40;
     public static double V_MIN = 0.0;
 
-    public static int LEFT_BOUND = 112;
-    public static int UPPER_BOUND = 50;
-    public static int WIDTH = 55;
-    public static int HEIGHT = 45;
+    public static int LEFT_BOUND = 0;
+    public static int UPPER_BOUND = 80;
+    public static int WIDTH = 20;
+    public static int HEIGHT = 38;
 
-    public static double FOUR_THRESHOLD = 0.7;
+    public static double FOUR_THRESHOLD = 0.8;
     public static double ONE_THRESHOLD = 0.35;
 
     private double[] currentHSV = { 0.0, 0.0, 0.0 };
@@ -37,12 +37,19 @@ public class RingPipeline extends OpenCvPipeline {
     private double percentage = 0.0;
     private RingConfiguration ringConfiguration = RingConfiguration.NULL;
 
+    public static boolean red = false;
+
     private Mat processingMat = new Mat();
     private Mat hsvMat = new Mat();
 
 
     @Override
     public Mat processFrame(Mat input) {
+        if (red) {
+            LEFT_BOUND = 300;
+        } else {
+            LEFT_BOUND = 0;
+        }
         if (input != null) {
             Imgproc.blur(input, processingMat, new Size(20, 20));
             Imgproc.cvtColor(processingMat, hsvMat, Imgproc.COLOR_BGR2HSV);

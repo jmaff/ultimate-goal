@@ -17,18 +17,15 @@ import org.firstinspires.ftc.teamcode.vision.RingPipeline;
 import static org.firstinspires.ftc.teamcode.motion.DriveConstants.TRACK_WIDTH;
 
 @Autonomous
-public class BlueAuto extends RobotAuto {
-    public static double TURN = 0; //7
+public class RedAutoNoExtra extends RobotAuto {
+    public static double TURN = -1; //7
 
-    public static final Pose2d startPose = new Pose2d(-63.25, 15.5);
-//    public static final Vector2d PS_POS = new Vector2d(-2, 12);
-    public static final Vector2d SHOOT_POS = new Vector2d(-2, 34);
-    public static final Vector2d INTAKE_POS = new Vector2d(-1, 36);
-    public static final Vector2d INTAKE_END_POS = new Vector2d(-9, 36);
-    public static final Vector2d PARK_POS = new Vector2d(10, 10);
+    public static final Pose2d startPose = new Pose2d(-63.25, -15.5);
+    public static final Vector2d SHOOT_POS = new Vector2d(-2, -34);
+    public static final Vector2d INTAKE_POS = new Vector2d(-1, -39);
+    public static final Vector2d INTAKE_END_POS = new Vector2d(-8.5, -38);
+    public static final Vector2d PARK_POS = new Vector2d(10, -10);
 
-    public static final double RIGHT_ANGLE = -9.5;
-    public static final double LEFT_ANGLE = 12;
 
     public static DriveConstraints SLOW_CONSTRAINTS = new MecanumConstraints(new DriveConstraints(
             7.5, 7.5, 0.0,
@@ -40,9 +37,6 @@ public class BlueAuto extends RobotAuto {
     Trajectory toPowershot;
     Trajectory toShoot;
     Trajectory toWobble;
-    Trajectory toIntake;
-    Trajectory toIntakeEnd;
-    Trajectory toShootOther;
     Trajectory toPark;
 
     RingPipeline.RingConfiguration ringConfiguration = RingPipeline.RingConfiguration.NULL;
@@ -50,7 +44,7 @@ public class BlueAuto extends RobotAuto {
     @Override
     public void runOpMode() throws InterruptedException {
         initialize();
-        RingPipeline.red = false;
+        RingPipeline.red = true;
         vision.enable();
 
         drive.setPoseEstimate(startPose);
@@ -98,30 +92,6 @@ public class BlueAuto extends RobotAuto {
         sleep(500);
 
         wobble.setWobbleState(Wobble.WobbleState.UP);
-
-        if (ringConfiguration == RingPipeline.RingConfiguration.ONE || ringConfiguration == RingPipeline.RingConfiguration.FOUR) {
-            transfer.setSafetyState(Transfer.SafetyState.ENGAGED);
-            transfer.setPivotState(Transfer.PivotState.DOWN);
-            intake.setState(Intake.IntakeState.IN);
-
-            drive.followTrajectory(toIntake);
-            sleep(100);
-            drive.followTrajectory(toIntakeEnd);
-            sleep(800);
-            intake.setState(Intake.IntakeState.OFF);
-            transfer.setPivotState(Transfer.PivotState.UP);
-            sleep(800);
-            drive.turn(Math.toRadians(180.0));
-            sleep(100);
-            drive.followTrajectory(toShootOther);
-            sleep(300);
-            drive.turn(Math.toRadians(1));
-            sleep(600);
-
-            transfer.setSafetyState(Transfer.SafetyState.DISENGAGED);
-            transfer.setFlickerState(Transfer.FlickerState.FIRE);
-            sleep(800);
-        }
         drive.followTrajectory(toPark);
 
 
@@ -143,18 +113,18 @@ public class BlueAuto extends RobotAuto {
             case NULL:
                 break;
             case NONE:
-                wobblePos = new Pose2d(14, 40, Math.toRadians(180));
+                wobblePos = new Pose2d(14, -40, 0.0);
                 break;
             case ONE:
-                wobblePos = new Pose2d(40, 15, Math.toRadians(180));
+                wobblePos = new Pose2d(38, -19, 0.0);
                 break;
             case FOUR:
-                wobblePos = new Pose2d(60, 40, Math.toRadians(180));
+                wobblePos = new Pose2d(59, -44, 0.0);
                 break;
         }
 
         toShoot = drive.trajectoryBuilder(startPose)
-                .splineTo(new Vector2d(-20, 16), 0.0)
+                .splineTo(new Vector2d(-20, -16), 0.0)
                 .addTemporalMarker(1, new MarkerCallback() {
                     @Override
                     public void onMarkerReached() {
@@ -175,35 +145,11 @@ public class BlueAuto extends RobotAuto {
                 })
                 .build();
 
-        toIntake = drive.trajectoryBuilder(toWobble.end())
-                .splineTo(INTAKE_POS, Math.toRadians(180))
-                .build();
 
-        toIntakeEnd = drive.trajectoryBuilder(toIntake.end())
-                .lineTo(INTAKE_END_POS, SLOW_CONSTRAINTS)
-                .build();
-
-
-        toShootOther = drive.trajectoryBuilder(new Pose2d(toIntake.end().vec(), 0.0))
-                .lineToConstantHeading(SHOOT_POS)
-                .addTemporalMarker(1, new MarkerCallback() {
-                    @Override
-                    public void onMarkerReached() {
-                        launcher.setLauncherState(Launcher.LauncherState.TELE);
-                        launcher.setTrajectoryPosition(Launcher.TA_LINE);
-                    }
-                })
-                .build();
-
-        if (ringConfiguration == RingPipeline.RingConfiguration.ONE || ringConfiguration == RingPipeline.RingConfiguration.FOUR) {
-            toPark = drive.trajectoryBuilder(toShootOther.end())
+        toPark = drive.trajectoryBuilder(toWobble.end())
                     .lineToConstantHeading(PARK_POS)
                     .build();
-        } else {
-            toPark = drive.trajectoryBuilder(toWobble.end())
-                    .lineToConstantHeading(PARK_POS)
-                    .build();
-        }
+
 
         //        toPowershot = drive.trajectoryBuilder(startPose)
 //                .lineToLinearHeading(new Pose2d(PS_POS, 0.0))

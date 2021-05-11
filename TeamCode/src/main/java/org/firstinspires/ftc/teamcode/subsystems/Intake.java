@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 public class Intake implements Subsystem {
-    public static double STICK_STOW = 0.2;
+    public static double STICK_STOW = 0.27;
     public static double STICK_RAISED = 0.6;
     public static double STICK_DOWN = 0.7;
 
@@ -17,6 +17,7 @@ public class Intake implements Subsystem {
     public static double STICK_DOWN_RIGHT = 0.0;
 
     public boolean noRight = false;
+    public boolean stickDisabled = true;
 
     private DcMotor motor;
     private Servo stickLeft;
@@ -49,7 +50,7 @@ public class Intake implements Subsystem {
     public void update() {
         switch (state) {
             case IN:
-                motor.setPower(0.75);
+                motor.setPower(1.0); //0.78
                 break;
             case OUT:
                 motor.setPower(-1.0);
@@ -57,6 +58,10 @@ public class Intake implements Subsystem {
             case OFF:
                 motor.setPower(0.0);
                 break;
+        }
+
+        if (stickDisabled) {
+            stickState = StickState.STOWED;
         }
 
         if (!noRight) {

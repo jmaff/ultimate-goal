@@ -75,7 +75,7 @@ public class Drivetrain extends MecanumDrive implements Subsystem {
     private FtcDashboard dashboard;
     private NanoClock clock;
 
-    private Mode mode;
+    public Mode mode;
 
     private PIDFController turnController;
     private MotionProfile turnProfile;

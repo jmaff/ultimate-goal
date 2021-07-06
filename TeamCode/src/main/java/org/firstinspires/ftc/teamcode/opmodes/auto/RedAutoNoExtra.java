@@ -18,7 +18,7 @@ import static org.firstinspires.ftc.teamcode.motion.DriveConstants.TRACK_WIDTH;
 
 @Autonomous
 public class RedAutoNoExtra extends RobotAuto {
-    public static double TURN = -1; //7
+    public static double TURN = -4; //7
 
     public static final Pose2d startPose = new Pose2d(-63.25, -15.5);
     public static final Vector2d SHOOT_POS = new Vector2d(-2, -34);

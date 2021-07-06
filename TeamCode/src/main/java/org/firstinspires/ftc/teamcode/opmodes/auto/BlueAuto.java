@@ -23,8 +23,8 @@ public class BlueAuto extends RobotAuto {
     public static final Pose2d startPose = new Pose2d(-63.25, 15.5);
 //    public static final Vector2d PS_POS = new Vector2d(-2, 12);
     public static final Vector2d SHOOT_POS = new Vector2d(-2, 34);
-    public static final Vector2d INTAKE_POS = new Vector2d(-1, 36);
-    public static final Vector2d INTAKE_END_POS = new Vector2d(-9, 36);
+    public static final Vector2d INTAKE_POS = new Vector2d(-1, 34);
+    public static final Vector2d INTAKE_END_POS = new Vector2d(-9, 34);
     public static final Vector2d PARK_POS = new Vector2d(10, 10);
 
     public static final double RIGHT_ANGLE = -9.5;
@@ -108,10 +108,12 @@ public class BlueAuto extends RobotAuto {
             sleep(100);
             drive.followTrajectory(toIntakeEnd);
             sleep(800);
+            intake.setState(Intake.IntakeState.OUT);
+            sleep(300);
+            drive.turn(Math.toRadians(180.0));
+            sleep(100);
             intake.setState(Intake.IntakeState.OFF);
             transfer.setPivotState(Transfer.PivotState.UP);
-            sleep(800);
-            drive.turn(Math.toRadians(180.0));
             sleep(100);
             drive.followTrajectory(toShootOther);
             sleep(300);
@@ -185,7 +187,7 @@ public class BlueAuto extends RobotAuto {
 
 
         toShootOther = drive.trajectoryBuilder(new Pose2d(toIntake.end().vec(), 0.0))
-                .lineToConstantHeading(SHOOT_POS)
+                .lineToConstantHeading(new Vector2d(SHOOT_POS.getX()-3, SHOOT_POS.getY()))
                 .addTemporalMarker(1, new MarkerCallback() {
                     @Override
                     public void onMarkerReached() {

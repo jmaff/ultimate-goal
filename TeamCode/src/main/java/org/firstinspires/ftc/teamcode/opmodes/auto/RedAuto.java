@@ -18,12 +18,12 @@ import static org.firstinspires.ftc.teamcode.motion.DriveConstants.TRACK_WIDTH;
 
 @Autonomous
 public class RedAuto extends RobotAuto {
-    public static double TURN = -1; //7
+    public static double TURN = -4; //2
 
     public static final Pose2d startPose = new Pose2d(-63.25, -15.5);
     public static final Vector2d SHOOT_POS = new Vector2d(-2, -34);
-    public static final Vector2d INTAKE_POS = new Vector2d(-1, -39);
-    public static final Vector2d INTAKE_END_POS = new Vector2d(-8.5, -38);
+    public static final Vector2d INTAKE_POS = new Vector2d(-1, -36);
+    public static final Vector2d INTAKE_END_POS = new Vector2d(-8.8, -36);
     public static final Vector2d PARK_POS = new Vector2d(10, -10);
 
 
@@ -106,12 +106,13 @@ public class RedAuto extends RobotAuto {
             drive.followTrajectory(toIntakeEnd);
             sleep(800);
             intake.setState(Intake.IntakeState.OFF);
-            transfer.setPivotState(Transfer.PivotState.UP);
-            sleep(800);
+            sleep(300);
             intake.setState(Intake.IntakeState.OUT);
             drive.turn(Math.toRadians(180.0));
             sleep(100);
             intake.setState(Intake.IntakeState.OFF);
+            transfer.setPivotState(Transfer.PivotState.UP);
+            sleep(100);
             drive.followTrajectory(toShootOther);
             sleep(300);
             drive.turn(Math.toRadians(8));

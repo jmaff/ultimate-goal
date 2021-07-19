@@ -22,7 +22,7 @@ public class BlueAuto extends RobotAuto {
 
     public static final Pose2d startPose = new Pose2d(-63.25, 15.5);
 //    public static final Vector2d PS_POS = new Vector2d(-2, 12);
-    public static final Vector2d SHOOT_POS = new Vector2d(-2, 34);
+    public static final Vector2d SHOOT_POS = new Vector2d(-3, 34);
     public static final Vector2d INTAKE_POS = new Vector2d(-1, 34);
     public static final Vector2d INTAKE_END_POS = new Vector2d(-9, 34);
     public static final Vector2d PARK_POS = new Vector2d(10, 10);
@@ -93,6 +93,7 @@ public class BlueAuto extends RobotAuto {
         launcher.setLauncherState(Launcher.LauncherState.OFF);
         transfer.setFlickerState(Transfer.FlickerState.GO_TO_LIMIT);
 
+        wobble.setWobbleState(Wobble.WobbleState.DOWN);
         drive.followTrajectory(toWobble);
         wobble.setGrabberState(Wobble.GrabberState.RELEASED);
         sleep(500);

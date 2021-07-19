@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.MarkerCallback;
@@ -16,16 +17,17 @@ import org.firstinspires.ftc.teamcode.vision.RingPipeline;
 
 import static org.firstinspires.ftc.teamcode.motion.DriveConstants.TRACK_WIDTH;
 
+@Config
 @Autonomous
-public class RedAutoNoExtra extends RobotAuto {
-    public static double TURN = -4; //7
+public class RedPartnerAuto extends RobotAuto {
+    public static double TURN = 12; //7
 
-    public static final Pose2d startPose = new Pose2d(-63.25, -15.5);
-    public static final Vector2d SHOOT_POS = new Vector2d(-3, -36);
+    public static final Pose2d startPose = new Pose2d(-63.25, -61.5);
+    public static final Vector2d SHOOT_POS = new Vector2d(-2, -63);
     public static final Vector2d INTAKE_POS = new Vector2d(-1, -39);
     public static final Vector2d INTAKE_END_POS = new Vector2d(-8.5, -38);
-    public static final Vector2d PARK_POS = new Vector2d(10, -10);
-
+    public static final Vector2d PARK_POS = new Vector2d(8, -63);
+    public static final Vector2d OTHER_PARK_POS = new Vector2d(-2, -76);
 
     public static DriveConstraints SLOW_CONSTRAINTS = new MecanumConstraints(new DriveConstraints(
             7.5, 7.5, 0.0,
@@ -44,7 +46,7 @@ public class RedAutoNoExtra extends RobotAuto {
     @Override
     public void runOpMode() throws InterruptedException {
         initialize();
-        RingPipeline.red = true;
+        RingPipeline.red = false;
         vision.enable();
 
         drive.setPoseEstimate(startPose);
@@ -87,12 +89,23 @@ public class RedAutoNoExtra extends RobotAuto {
         launcher.setLauncherState(Launcher.LauncherState.OFF);
         transfer.setFlickerState(Transfer.FlickerState.GO_TO_LIMIT);
 
-        wobble.setWobbleState(Wobble.WobbleState.DOWN);
         drive.followTrajectory(toWobble);
+        sleep(100);
+        if (ringConfiguration == RingPipeline.RingConfiguration.ONE) {
+            drive.turn(Math.toRadians(230.0));
+        } else if (ringConfiguration == RingPipeline.RingConfiguration.NONE || ringConfiguration == RingPipeline.RingConfiguration.FOUR) {
+            drive.turn(Math.toRadians(90.0));
+        }
+
+        wobble.setWobbleState(Wobble.WobbleState.DOWN);
+        sleep(1100);
         wobble.setGrabberState(Wobble.GrabberState.RELEASED);
         sleep(500);
 
-        wobble.setWobbleState(Wobble.WobbleState.UP);
+        if (ringConfiguration != RingPipeline.RingConfiguration.NONE) {
+            wobble.setWobbleState(Wobble.WobbleState.UP);
+        }
+
         drive.followTrajectory(toPark);
 
 
@@ -114,47 +127,51 @@ public class RedAutoNoExtra extends RobotAuto {
             case NULL:
                 break;
             case NONE:
-                wobblePos = new Pose2d(14, -40, 0.0);
+                wobblePos = new Pose2d(0, -61.5, 0.0);
                 break;
             case ONE:
-                wobblePos = new Pose2d(38, -19, 0.0);
+                wobblePos = new Pose2d(37, -60, Math.toRadians(180.0));
                 break;
             case FOUR:
-                wobblePos = new Pose2d(59, -44, 0.0);
+                wobblePos = new Pose2d(48, -61.5, Math.toRadians(0.0));
                 break;
         }
 
         toShoot = drive.trajectoryBuilder(startPose)
-                .splineTo(new Vector2d(-20, -16), 0.0)
                 .addTemporalMarker(1, new MarkerCallback() {
                     @Override
                     public void onMarkerReached() {
-                        launcher.setLauncherState(Launcher.LauncherState.ON);
+                        launcher.setLauncherState(Launcher.LauncherState.TELE);
                         launcher.setTrajectoryPosition(Launcher.TA_LINE);
                     }
                 })
-                .splineToConstantHeading(SHOOT_POS, 0.0)
+                .lineToConstantHeading(SHOOT_POS)
                 .build();
 
         toWobble = drive.trajectoryBuilder(new Pose2d(toShoot.end().vec(), TURN))
-                .lineToLinearHeading(wobblePos)
+                .lineTo(wobblePos.vec())
                 .addTemporalMarker(0.8, new MarkerCallback() {
                     @Override
                     public void onMarkerReached() {
-                        wobble.setWobbleState(Wobble.WobbleState.DOWN);
+//                        wobble.setWobbleState(Wobble.WobbleState.DOWN);
                     }
                 })
                 .build();
 
-
-        toPark = drive.trajectoryBuilder(toWobble.end())
-                    .lineToConstantHeading(PARK_POS)
+        double parkStartHeading = ringConfiguration == RingPipeline.RingConfiguration.ONE ? Math.toRadians(179.0) : 0.0;
+        if (ringConfiguration == RingPipeline.RingConfiguration.NONE) {
+            toPark = drive.trajectoryBuilder(new Pose2d(toWobble.end().vec(), Math.toRadians(90)))
+                    .lineTo(OTHER_PARK_POS)
                     .build();
+        } else {
+            toPark = drive.trajectoryBuilder(new Pose2d(toWobble.end().vec(), parkStartHeading))
+                    .lineTo(PARK_POS)
+                    .build();
+        }
 
 
         //        toPowershot = drive.trajectoryBuilder(startPose)
-//                .lineToLinearHeading(new Pose2d(PS_POS, 0.0))
-//                .addTemporalMarker(1.5, new MarkerCallback() {
+//                .lineToLinearHeading(new Pose2d(PS_POS, 0.0))//                .addTemporalMarker(1.5, new MarkerCallback() {
 //                    @Override
 //                    public void onMarkerReached() {
 //                        launcher.setLauncherState(Launcher.LauncherState.WOBBLE);
